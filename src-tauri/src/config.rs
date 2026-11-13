@@ -536,7 +536,7 @@ impl LauncherConfig {
       .join("official")
       .join(active_version);
 
-    if version_dir.exists() {
+    if version_dir.try_exists()? {
       return Ok(true);
     }
 
@@ -556,11 +556,13 @@ impl LauncherConfig {
       }
     });
 
-    if binaries.iter().all(|binary| dst_dir.join(binary).exists()) {
-      return Ok(());
+    for binary in &binaries {
+      if !dst_dir.join(binary).try_exists()? {
+        return self.copy_active_binaries();
+      }
     }
 
-    self.copy_active_binaries()
+    Ok(())
   }
 
   pub fn remove_version(&mut self, version: &str) -> Result<()> {
