@@ -4,8 +4,8 @@
 )]
 
 use directories::UserDirs;
+use std::sync::OnceLock;
 use tauri::Manager;
-use tokio::sync::OnceCell;
 use tracing::warn;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
@@ -21,7 +21,7 @@ mod commands;
 mod config;
 mod util;
 
-static LOG_GUARD: OnceCell<WorkerGuard> = OnceCell::const_new();
+static LOG_GUARD: OnceLock<WorkerGuard> = OnceLock::new();
 
 fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::force_capture();
@@ -68,7 +68,7 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
   log_crash(Some(info), None);
 }
 
-static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
+static TAURI_APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
 fn main() {
   #[cfg(target_os = "linux")]
