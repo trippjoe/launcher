@@ -301,11 +301,14 @@ impl LauncherConfig {
 
     let file = std::fs::File::open(&settings_path);
     let mut config: LauncherConfig = match file {
-      Ok(file) => serde_json::from_reader(file).unwrap_or_else(|_| {
-        tracing::warn!("Failed to load or parse settings file, using defaults");
-        LauncherConfig::backup(&settings_path);
-        LauncherConfig::default_with_path(settings_path.clone())
-      }),
+      Ok(file) => serde_json::from_reader(file)
+        .inspect_err(|err| {
+          tracing::warn!("Failed to parse settings.json: {err}");
+        })
+        .unwrap_or_else(|_| {
+          LauncherConfig::backup(&settings_path);
+          LauncherConfig::default_with_path(settings_path.clone())
+        }),
       Err(_) => LauncherConfig::default_with_path(settings_path.clone()),
     };
 
