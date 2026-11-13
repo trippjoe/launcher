@@ -12,8 +12,8 @@ use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use util::file::create_dir;
 
-use backtrace::Backtrace;
 use native_dialog::{DialogBuilder, MessageLevel};
+use std::backtrace::Backtrace;
 use std::io::Write;
 
 mod cache;
@@ -24,14 +24,14 @@ mod util;
 static LOG_GUARD: OnceCell<WorkerGuard> = OnceCell::const_new();
 
 fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
-  let backtrace = Backtrace::new();
+  let backtrace = Backtrace::force_capture();
   let log_contents;
   if let Some(panic_info) = panic_info {
-    log_contents = format!("panic occurred: {panic_info:?}\n{backtrace:?}");
+    log_contents = format!("panic occurred: {panic_info:?}\n{backtrace}");
   } else if let Some(error) = error {
-    log_contents = format!("unexpected app error occurred: {error:?}\n{backtrace:?}",);
+    log_contents = format!("unexpected app error occurred: {error:?}\n{backtrace}",);
   } else {
-    log_contents = format!("unexpected error occurred: {backtrace:?}");
+    log_contents = format!("unexpected error occurred: {backtrace}");
   }
   tracing::error!("{}", log_contents);
   if let Some(user_dirs) = UserDirs::new() {
