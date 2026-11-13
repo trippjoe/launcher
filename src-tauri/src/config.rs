@@ -517,7 +517,7 @@ impl LauncherConfig {
       CommandError::BinaryExecution("No active version set, can't perform operation".to_owned())
     })?;
 
-    let version_str = active_version.strip_prefix('v').unwrap_or(active_version);
+    let version_str = active_version.trim_prefix('v');
 
     let tooling_version = Version::parse(version_str).unwrap_or_else(|_| Version::new(0, 1, 35));
 
