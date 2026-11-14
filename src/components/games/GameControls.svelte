@@ -245,7 +245,6 @@
             ></DropdownItem
           >
           <DropdownDivider />
-          <!-- TODO - clicking this button provides zero feedback -->
           <DropdownItem
             onclick={async () => {
               await resetGameSettings(activeGame);
